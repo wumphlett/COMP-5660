@@ -4,7 +4,7 @@ Evolutionary Computing
 
 ```
 
-    Total Views per Day from 2022-08-17 to 2022-09-03
+    Total Views per Day from 2022-08-17 to 2022-09-04
 
     Repository Views
    20.00  ┼╮
@@ -16,14 +16,14 @@ Evolutionary Computing
    12.00  ┤│      ││
    10.67  ┤│      ││
     9.33  ┤│      ││
-    8.00  ┤│      ││
-    6.67  ┤│      ││
-    5.33  ┤│      ││     ╭╮
-    4.00  ┤│      ││   ╭╮│╰╮
-    2.67  ┤│╭─╮   ││╭╮ │││ │
-    1.33  ┤││ ╰╮  ││││ │││ ╰
+    8.00  ┤│      ││        ╭
+    6.67  ┤│      ││        │
+    5.33  ┤│      ││     ╭╮ │
+    4.00  ┤│      ││   ╭╮│╰╮│
+    2.67  ┤│╭─╮   ││╭╮ │││ ││
+    1.33  ┤││ ╰╮  ││││ │││ ╰╯
     0.00  ┤╰╯  ╰──╯╰╯╰─╯╰╯
 
-    Chart last updated - Sun Sep  4 00:52:22 2022 UTC
+    Chart last updated - Mon Sep  5 01:01:09 2022 UTC
     
 ```
