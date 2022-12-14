@@ -27,8 +27,14 @@ class BaseEvolutionPopulation():
         random.shuffle(parents)
         for i in range(0, 2 * self.num_children, 2):
             child = parents[i].recombine(parents[i + 1], **self.recombination_kwargs)
-            children.append(child.mutate(**self.mutation_kwargs) if random.random() < self.mutation_rate else child)
-        return children
+            if random.random() < self.mutation_rate:
+                children.append(child.mutate(**self.mutation_kwargs))
+            children.append(child)
+
+            if len(children) > self.num_children:
+                break
+
+        return children[:self.num_children]
 
 
     def survival(self):

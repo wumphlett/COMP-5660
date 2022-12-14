@@ -14,7 +14,6 @@ class LinearGenotype():
     def recombine(self, mate, method, **kwargs):
         child = LinearGenotype()
         
-        # TODO: Recombine genes of self with mate and assign to child's gene member variable
         assert method.casefold() in {'uniform', '1-point crossover', 'bonus'}
         if method.casefold() == 'uniform':
             child.gene = []
@@ -27,7 +26,6 @@ class LinearGenotype():
         elif method.casefold() == 'bonus':
             ''' 
             This is a red deliverable (i.e., bonus for anyone).
-
             Implement the bonus crossover operator as described in deliverable
             Red 1 of Assignment 1b.
             '''
@@ -47,7 +45,6 @@ class LinearGenotype():
         else:
             ''' 
             This is a red deliverable (i.e., bonus for anyone).
-
             Implement the bonus crossover operator as described in deliverable
             Red 1 of Assignment 1b.
             '''
