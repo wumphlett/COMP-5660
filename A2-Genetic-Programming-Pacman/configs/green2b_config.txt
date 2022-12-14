@@ -4,15 +4,15 @@ pill_spawn = linear
 pill_density = 0.05
 fruit_prob = 0.1
 fruit_score = 10
-parsimony_coefficient = .01
+parsimony_coefficient = 1E9 # Not a good parsimony coefficient
 
 [EA_configs]
-mu = 400
-num_children = 200
-mutation_rate = 0.02
+mu = 5
+num_children = 2
+mutation_rate = 0.95
 individual_class = TreeGenotype
-parent_selection = stochastic_universal_sampling
-survival_selection = truncation
+parent_selection = k_tournament_with_replacement
+survival_selection = k_tournament_without_replacement
 
 [initialization_kwargs]
 depth_limit = 10

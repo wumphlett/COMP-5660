@@ -19,7 +19,7 @@ class BaseEvolutionPopulation:
         self.mutation_kwargs = mutation_kwargs
         self.survival_selection_kwargs = survival_selection_kwargs
 
-        self.population = individual_class.initialization(self.mu, **initialization_kwargs)
+        self.population = individual_class.initialization(self.mu, **initialization_kwargs, **kwargs)
 
     def generate_children(self):
         children = []

@@ -28,20 +28,20 @@ class Node(ABC):
 
 
 class NodeWrapper:
-    def __init__(self, wrapped):
-        self._wrapped = wrapped
+    def __init__(self, wrapped: Node):
+        self.wrapped = wrapped
 
     def __getattr__(self, attr):
-        return getattr(self._wrapped, attr)
+        return getattr(self.wrapped, attr)
 
     def __setattr__(self, attr, value):
-        if attr != "_wrapped":
-            setattr(self._wrapped, attr, value)
+        if attr != "wrapped":
+            setattr(self.wrapped, attr, value)
         else:
-            self.__dict__["_wrapped"] = value
+            self.__dict__["wrapped"] = value
 
     def __deepcopy__(self, memo: dict):
-        return self.__class__(deepcopy(self._wrapped, memo))
+        return self.__class__(deepcopy(self.wrapped, memo))
 
 
 class InternalNode(Node, ABC):
@@ -94,7 +94,7 @@ class DivNode(InternalNode):
 
 class RandNode(InternalNode):
     name = "RAND"
-    
+
     def eval(self, state):
         return random.uniform(self.left.eval(state), self.right.eval(state))
 
@@ -103,15 +103,24 @@ class GhostNode(LeafNode):
     name = "G"
 
     def eval(self, state: dict):
-        ghosts = list(key for key in state['players'] if 'm' not in key)
-        return manhattan_distance(state['players']['m'], *[state['players'][ghost] for ghost in ghosts])
+        player = state['player']
+        # Create list of ghosts from players excluding pacman and the ghost currently represented by the controller
+        ghosts = list(key for key in state['players'] if 'm' not in key and player != key)
+        return manhattan_distance(state['players'][player], *[state['players'][ghost] for ghost in ghosts])
+
+
+class PacmanNode(LeafNode):
+    name = "M"
+
+    def eval(self, state: dict):
+        return manhattan_distance(state['players'][state['player']], state['players']['m'])
 
 
 class PillNode(LeafNode):
     name = "P"
 
     def eval(self, state: dict):
-        return manhattan_distance(state['players']['m'], *state['pills'])
+        return manhattan_distance(state['players'][state['player']], *state['pills'])
 
 
 class WallNode(LeafNode):
@@ -120,10 +129,10 @@ class WallNode(LeafNode):
     def eval(self, state: dict):
         wall_count = 0
         board = state['walls']
-        pacman = state['players']['m']
+        player = state['players'][state['player']]
         for x, y in ((-1, 0), (0, 1), (1, 0), (0, -1)):
             try:
-                if board[pacman[0] - x][pacman[1] - y] == 1:
+                if board[player[0] - x][player[1] - y] == 1:
                     wall_count += 1
             except IndexError:
                 wall_count += 1
@@ -136,7 +145,7 @@ class FruitNode(LeafNode):
     def eval(self, state: dict):
         if state['fruit'] is None:
             return 100
-        return manhattan_distance(state['players']['m'], state['fruit'])
+        return manhattan_distance(state['players'][state['player']], state['fruit'])
 
 
 class FloatNode(LeafNode):
@@ -155,11 +164,15 @@ class ValueFunction:
     operators: list
     inputs: list
 
-    def __init__(self, max_depth):
+    def __init__(self, max_depth, ghost=False):
         self.max_depth = max_depth
         self.root = None
-        self.operators = [AddNode, SubNode, MultNode, DivNode, RandNode]
-        self.inputs = [GhostNode, PillNode, WallNode, FruitNode, FloatNode]
+        if ghost:
+            self.operators = [AddNode, SubNode, MultNode, DivNode, RandNode]
+            self.inputs = [PacmanNode, GhostNode, PillNode, WallNode, FruitNode, FloatNode]
+        else:
+            self.operators = [AddNode, SubNode, MultNode, DivNode, RandNode]
+            self.inputs = [GhostNode, PillNode, WallNode, FruitNode, FloatNode]
 
     def print(self):
         """The string representation of the tree."""
@@ -200,7 +213,7 @@ class ValueFunction:
             return node
         else:
             node = NodeWrapper(random.choice(self.inputs + self.operators)(depth))
-            if isinstance(node._wrapped, InternalNode):
+            if isinstance(node.wrapped, InternalNode):
                 node.left = self._grow_init_helper(depth + 1)
                 node.right = self._grow_init_helper(depth + 1)
             return node
@@ -209,9 +222,9 @@ class ValueFunction:
         """Iterate over all nodes in the tree."""
         return self._node_iter_helper(self.root)
 
-    def _node_iter_helper(self, node: Node):
+    def _node_iter_helper(self, node: NodeWrapper):
         """Recursive helper for tree iterator."""
-        if isinstance(node._wrapped, InternalNode):
+        if isinstance(node.wrapped, InternalNode):
             yield from self._node_iter_helper(node.left)
             yield from self._node_iter_helper(node.right)
         yield node
@@ -220,9 +233,9 @@ class ValueFunction:
         """Obtain the number of nodes in the tree."""
         return self._count_helper(self.root)
 
-    def _count_helper(self, node: Node):
+    def _count_helper(self, node: NodeWrapper):
         """Recursive helper for the node counter."""
-        if isinstance(node._wrapped, InternalNode):
+        if isinstance(node.wrapped, InternalNode):
             node.size = self._count_helper(node.left) + self._count_helper(node.right) + 1
         else:
             node.size = 1
@@ -232,9 +245,9 @@ class ValueFunction:
         """Obtain the height of every node in the tree."""
         return self._height_helper(self.root)
 
-    def _height_helper(self, node: Node):
+    def _height_helper(self, node: NodeWrapper):
         """Recursive helper for the node height finder."""
-        if isinstance(node._wrapped, InternalNode):
+        if isinstance(node.wrapped, InternalNode):
             node.height = max(self._height_helper(node.left), self._height_helper(node.right)) + 1
         else:
             node.height = 0
@@ -244,9 +257,9 @@ class ValueFunction:
         """Select a node from the tree given an index."""
         return self._select_helper(self.root, idx)
 
-    def _select_helper(self, node: Node, nth: int):
+    def _select_helper(self, node: NodeWrapper, nth: int):
         """Recursive helper for select node."""
-        left_size = node.left.size if isinstance(node._wrapped, InternalNode) else 0
+        left_size = node.left.size if isinstance(node.wrapped, InternalNode) else 0
 
         if nth == left_size:
             return node
@@ -280,7 +293,7 @@ class TreeGenotype:
                 [node for node in mate.gene.node_iter() if rand_node.depth + node.height <= kwargs["depth_limit"]]
             )
 
-            rand_node._wrapped = deepcopy(recomb_node._wrapped)
+            rand_node.wrapped = deepcopy(recomb_node.wrapped)
 
         return child
 
@@ -293,7 +306,7 @@ class TreeGenotype:
         # get random node in place
         rand_node = copy.gene.select(random.randrange(copy.gene.count()))
         # re-generate tree from and including the randomly selected node
-        rand_node._wrapped = copy.gene._grow_init_helper(rand_node.depth)._wrapped
+        rand_node.wrapped = copy.gene._grow_init_helper(rand_node.depth).wrapped
 
         return copy
 
@@ -301,11 +314,13 @@ class TreeGenotype:
     def initialization(cls, mu, *args, **kwargs):
         population = [cls() for _ in range(mu)]
         depth_limit = kwargs['depth_limit']
+
+        # ramped half-and-half
         idx = 0
         while idx < mu:
             for depth in range(2, depth_limit + 1):
                 for method in ('full_init', 'grow_init'):
-                    population[idx].gene = getattr(ValueFunction(depth), method)()
+                    population[idx].gene = getattr(ValueFunction(depth, ghost=kwargs.get("ghost", False)), method)()
                     idx += 1
                     if idx == mu:
                         return population

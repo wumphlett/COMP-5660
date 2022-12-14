@@ -1,0 +1,45 @@
+[fitness_kwargs]
+game_map = ./maps/map00.txt
+pill_spawn = linear
+pill_density = 0.05
+fruit_prob = 0.1
+fruit_score = 10
+pac_parsimony_coefficient = .025
+ghost_parsimony_coefficient = .25
+
+[pac_EA_configs]
+mu = 300
+num_children = 150
+mutation_rate = 0.02
+individual_class = TreeGenotype
+parent_selection = stochastic_universal_sampling
+survival_selection = truncation
+
+[ghost_EA_configs]
+mu = 300
+num_children = 150
+mutation_rate = 0.02
+individual_class = TreeGenotype
+parent_selection = stochastic_universal_sampling
+survival_selection = truncation
+
+[initialization_kwargs]
+depth_limit = 10
+
+[pac_parent_selection_kwargs]
+k = 1
+
+[ghost_parent_selection_kwargs]
+k = 1
+
+[recombination_kwargs]
+depth_limit = 10
+
+[mutation_kwargs]
+depth_limit = 10
+
+[pac_survival_selection_kwargs]
+k = 1
+
+[ghost_survival_selection_kwargs]
+k = 1

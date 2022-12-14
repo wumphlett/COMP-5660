@@ -3,22 +3,22 @@ from copy import deepcopy
 import matplotlib.pyplot as plt
 import matplotlib.path as mpath
 
-GHOST_ACTIONS = {'up':(0,1), 'right':(1,0), 'down':(0,-1), 'left':(-1,0)}
-PAC_ACTIONS = {'hold':(0,0)}
+GHOST_ACTIONS = {'up': (0, 1), 'right': (1, 0), 'down': (0, -1), 'left': (-1, 0)}
+PAC_ACTIONS = {'hold': (0, 0)}
 PAC_ACTIONS.update(GHOST_ACTIONS)
 
 # pac-man icon creation
 pac_vertices = deepcopy(mpath.Path.unit_circle().vertices)
 pac_codes = deepcopy(mpath.Path.unit_circle().codes)
-pac_vertices[5] = [0,0]
-pac_vertices[6] = [0,0]
-pac_vertices[7] = [0,0]
-PAC_ICON = mpath.Path(vertices=pac_vertices,codes=pac_codes)
+pac_vertices[5] = [0, 0]
+pac_vertices[6] = [0, 0]
+pac_vertices[7] = [0, 0]
+PAC_ICON = mpath.Path(vertices=pac_vertices, codes=pac_codes)
 # ghost icon creation
 fin_depth = 0.5
 ghost_vertices = deepcopy(mpath.Path.unit_circle().vertices)
 ghost_codes = deepcopy(mpath.Path.unit_circle().codes)
-ghost_vertices[1] = [0.25,-fin_depth]
+ghost_vertices[1] = [0.25, -fin_depth]
 ghost_vertices[2] = [0.5, -1]
 ghost_vertices[3] = [0.75, -fin_depth]
 ghost_vertices[4] = [1, -1]
@@ -39,17 +39,19 @@ ghost_codes[20] = 2
 ghost_codes[21] = 2
 ghost_codes[22] = 2
 ghost_codes[23] = 2
-GHOST_ICON = mpath.Path(vertices=ghost_vertices,codes=ghost_codes)
+GHOST_ICON = mpath.Path(vertices=ghost_vertices, codes=ghost_codes)
+
 
 class GPacGame():
-    def __init__(self, game_map, pill_density=0.1, fruit_prob=0.2, fruit_score=10, time_multiplier=2, num_ghosts=3, num_pacs=1, pill_spawn = 'stochastic', **kwargs):
+    def __init__(self, game_map, pill_density=0.1, fruit_prob=0.2, fruit_score=10, time_multiplier=2, num_ghosts=3,
+                 num_pacs=1, pill_spawn='stochastic', **kwargs):
         assert len(game_map) > 0 and min([len(col) for col in game_map]) > 0, "ERROR: MAP MUST BE 2 DIMENSIONAL"
         self.map = game_map[:][:]
         self.width = len(self.map)
         self.height = max([len(col) for col in self.map])
         self.players = {'m': ()}
-        for pac in range(num_pacs-1):
-            self.players[f'm{pac}'] =  ()
+        for pac in range(num_pacs - 1):
+            self.players[f'm{pac}'] = ()
         for ghost in range(num_ghosts):
             self.players[f'{ghost}'] = ()
         self.pill_density = pill_density
@@ -63,9 +65,9 @@ class GPacGame():
         # spawn players
         for player in self.players:
             if 'm' in player:
-                self.players[player] = (0, len(self.map[0])-1)
+                self.players[player] = (0, len(self.map[0]) - 1)
             else:
-                self.players[player] = (len(self.map)-1,0)
+                self.players[player] = (len(self.map) - 1, 0)
         self.pills_consumed = 0
         self.pills = set()
 
@@ -76,11 +78,11 @@ class GPacGame():
             for x in range(len(self.map)):
                 for y in range(len(self.map[x])):
                     # skip spawning location of pac-man and ghosts
-                    if (x,y) in self.players.values():
+                    if (x, y) in self.players.values():
                         continue
                     if self.map[x][y] == 0 and random.random() <= self.pill_density:
-                        self.pills.add((x,y))
-            if len(self.pills) == 0: # failsafe logic to guarantee pill placement
+                        self.pills.add((x, y))
+            if len(self.pills) == 0:  # failsafe logic to guarantee pill placement
                 forbidden_locations = {self.players[player] for player in self.players}
                 available_locations = list()
                 for x in range(len(self.map)):
@@ -97,16 +99,16 @@ class GPacGame():
                     if self.map[x][y] == 0 and (x, y) not in forbidden_locations:
                         available_locations.append((x, y))
             assert len(available_locations) > 0, "ERROR: NO VALID PILL LOCATIONS"
-            pill_freq = max(1,int(round(1/self.pill_density)))
+            pill_freq = max(1, int(round(1 / self.pill_density)))
             if self.pill_spawn.casefold() == 'manhattan':
-                available_locations = sorted(available_locations, key=lambda location: location[0]+location[1])
+                available_locations = sorted(available_locations, key=lambda location: location[0] + location[1])
             for i in range(len(available_locations)):
-                if i%pill_freq==0:
+                if i % pill_freq == 0:
                     self.pills.add(available_locations[i])
 
         self.fruit_consumed = 0
         self.fruit_location = None
-        self.time = int(self.width*self.height*self.time_multiplier)
+        self.time = int(self.width * self.height * self.time_multiplier)
         self.score = 0
         self.bonus = 0
         self.gameover = False
@@ -127,7 +129,7 @@ class GPacGame():
         self.log.append(f't {self.time} {self.score}')
 
     def update_score(self):
-        self.score = int(100*self.pills_consumed/(self.pills_consumed+len(self.pills))) + self.bonus
+        self.score = int(100 * self.pills_consumed / (self.pills_consumed + len(self.pills))) + self.bonus
 
     def manage_fruit(self):
         # check if fruit already exists and whether or not one should spawn this turn
@@ -157,7 +159,8 @@ class GPacGame():
             for action in candidate_actions:
                 x, y = current_location
                 x_shift, y_shift = PAC_ACTIONS[action]
-                if  0 <= x+x_shift < len(self.map) and 0 <= y+y_shift < len(self.map[x]) and self.map[x+x_shift][y+y_shift] == 0:
+                if 0 <= x + x_shift < len(self.map) and 0 <= y + y_shift < len(self.map[x]) and self.map[x + x_shift][
+                    y + y_shift] == 0:
                     available_actions.append(action)
             self.possible_actions[player] = available_actions
 
@@ -170,11 +173,13 @@ class GPacGame():
         for action in actions:
             x, y = current_location
             x_shift, y_shift = PAC_ACTIONS[action]
-            x, y = x+x_shift, y+y_shift
-            state = {'walls': self.map[:][:], 'pills':list(self.pills), 'fruit':fruit_copy, 'players':self.players.copy()}
+            x, y = x + x_shift, y + y_shift
+            state = {'walls': self.map[:][:], 'pills': list(self.pills), 'fruit': fruit_copy,
+                     'players': self.players.copy()}
             state['players'][player] = (x, y)
+            state['player'] = player
             observations.append(state)
-        return observations 
+        return observations
 
     def register_action(self, action, player='m'):
         self.registered_actions[player] = action
@@ -184,22 +189,22 @@ class GPacGame():
         old_locations = self.players.copy()
         touched_pills = set()
         touched_fruit = False
-        
+
         # update player locations from registered actions
         for player, action in self.registered_actions.items():
             if player in self.graveyard:
-                continue # skip deceased pacs
+                continue  # skip deceased pacs
             assert action in self.get_actions(player=player), f'ERROR: INVALID ACTION ({action}) FOR PLAYER {player}'
             x, y = self.players[player]
             if 'm' in player:
                 x_shift, y_shift = PAC_ACTIONS[action]
-                self.players[player] = pac = (x+x_shift, y+y_shift)
+                self.players[player] = pac = (x + x_shift, y + y_shift)
                 if pac in self.pills:
                     touched_pills.add(pac)
                 touched_fruit = pac == self.fruit_location
             else:
                 x_shift, y_shift = GHOST_ACTIONS[action]
-                self.players[player] = (x+x_shift, y+y_shift)
+                self.players[player] = (x + x_shift, y + y_shift)
         self.registered_actions.clear()
         self.possible_actions.clear()
 
@@ -217,7 +222,7 @@ class GPacGame():
             for ghost in ghosts:
                 if self.players[pac] == old_locations[ghost] and old_locations[pac] == self.players[ghost]:
                     self.graveyard.add(pac)
-        
+
         if self.graveyard == pacs:
             self.gameover = True
         else:
@@ -233,16 +238,17 @@ class GPacGame():
                 self.update_score()
             if len(self.pills) == 0:
                 self.gameover = True
-                self.bonus += int(100*self.time/int(self.width*self.height*self.time_multiplier))
+                self.bonus += int(100 * self.time / int(self.width * self.height * self.time_multiplier))
                 self.update_score()
             elif self.time <= 0:
                 self.gameover = True
-            
+
         # update log
         for player, location in self.players.items():
             self.log.append(f'{player} {location[0]} {location[1]}')
-        self.manage_fruit() # do things with fruit
+        self.manage_fruit()  # do things with fruit
         self.log.append(f't {self.time} {self.score}')
+
 
 def render_start(log, speed=1):
     '''A so-so visualization function that renders the first frame of GPac'''
@@ -275,7 +281,7 @@ def render_start(log, speed=1):
 
     temp = list(pills)
     ax.scatter([i[0] for i in temp], [i[1] for i in temp])
-    
+
     temp = [players[player] for player in players if 'm' in player]
     ax.scatter([i[0] for i in temp], [i[1] for i in temp], 300, marker=PAC_ICON)
 
@@ -289,14 +295,16 @@ def render_start(log, speed=1):
     plt.grid(which='minor')
     plt.show()
 
+
 # test game with random agents if you run this file
 if __name__ == "__main__":
     size = 21
     game_map = [[1 for __ in range(size)] for _ in range(size)]
     for i in range(size):
-        game_map[0][i] = game_map[i][0] = game_map[size//2][i] = game_map[i][size//2] = game_map[size-1][i] = game_map[i][size-1] = 0
+        game_map[0][i] = game_map[i][0] = game_map[size // 2][i] = game_map[i][size // 2] = game_map[size - 1][i] = \
+        game_map[i][size - 1] = 0
     game = GPacGame(game_map)
     while not game.gameover:
-        [game.register_action(random.choice(game.get_actions(player = player)), player = player) for player in game.players]
+        [game.register_action(random.choice(game.get_actions(player=player)), player=player) for player in game.players]
         game.step()
     [print(line) for line in game.log]

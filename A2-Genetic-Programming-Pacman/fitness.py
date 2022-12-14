@@ -7,7 +7,8 @@ import statistics
 
 def manhattan_distance(location0, location1):
     '''calculate the Manhattan distance between two input points'''
-    return sum([abs(coord[0] - coord[1]) for coord in zip(list(location0), list(location1))]) # overkill
+    return sum([abs(coord[0] - coord[1]) for coord in zip(list(location0), list(location1))])  # overkill
+
 
 def parse_map(filename):
     game_map = list()
@@ -26,11 +27,11 @@ def parse_map(filename):
             y -= 1
     return game_map
 
+
 def play_GPac(pac_controller, ghost_controller=None, game_map=None, **kwargs):
     '''
     Fitness function that plays a game using the provided pac_controller
     with optional ghost controller and game map specifications.
-
     Returns Pac-Man score from a full game as well as the game log.
     '''
 
@@ -41,8 +42,8 @@ def play_GPac(pac_controller, ghost_controller=None, game_map=None, **kwargs):
         for i in range(size):
             game_map[0][i] = 0
             game_map[i][0] = 0
-            game_map[size//2][i] = 0
-            game_map[i][size//2] = 0
+            game_map[size // 2][i] = 0
+            game_map[i][size // 2] = 0
             game_map[-1][i] = 0
             game_map[i][-1] = 0
     # parse game map from file
@@ -52,7 +53,7 @@ def play_GPac(pac_controller, ghost_controller=None, game_map=None, **kwargs):
     else:
         pass
     game = gpac.GPacGame(game_map, **kwargs)
-    
+
     # game loop
     while not game.gameover:
         for player in game.players:
@@ -65,10 +66,9 @@ def play_GPac(pac_controller, ghost_controller=None, game_map=None, **kwargs):
                     # provided random ghost controller
                     selected_action_idx = random.choice(range(len(actions)))
                 else:
-                    # 2c TODO: add logic to use ghost controllers in competitive co-evolution
-                    pass
-            
-            # select Pac-Man action(s) using provided strategy 
+                    selected_action_idx = max(enumerate(s_primes), key=lambda s: ghost_controller.eval(s[1]))[0]
+
+            # select Pac-Man action(s) using provided strategy
             else:
                 if pac_controller is None:
                     # random pac-man controller for demo purposes
@@ -76,6 +76,6 @@ def play_GPac(pac_controller, ghost_controller=None, game_map=None, **kwargs):
                 else:
                     selected_action_idx = max(enumerate(s_primes), key=lambda s: pac_controller.eval(s[1]))[0]
             game.register_action(actions[selected_action_idx], player)
-        
+
         game.step()
     return game.score, game.log
