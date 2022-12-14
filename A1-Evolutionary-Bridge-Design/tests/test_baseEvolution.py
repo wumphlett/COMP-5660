@@ -16,7 +16,7 @@ class TestChildGeneration:
         ea = evo.BaseEvolutionPopulation(**config['EA_configs'], **config)
         for _ in range(iterations):
             ea.mu = random.randint(5, 1000)
-            ea.parent_selection_kwargs['k'] = ea.mu / 2
+            # ea.parent_selection_kwargs['k'] = ea.mu / 2
             config['parent_selection_kwargs']['k'] = min(config['parent_selection_kwargs']['k'], ea.mu)
             ea.population = random_pop(ea.mu, **config['initialization_kwargs'])
             random_fitness(ea.population)
@@ -28,7 +28,7 @@ class TestChildGeneration:
         ea = evo.BaseEvolutionPopulation(**config['EA_configs'], **config)
         for _ in range(iterations):
             ea.mu = random.randint(5, 1000)
-            ea.parent_selection_kwargs['k'] = ea.mu / 2
+            # ea.parent_selection_kwargs['k'] = ea.mu / 2
             ea.population = random_pop(ea.mu, **config['initialization_kwargs'])
             random_fitness(ea.population)
             ea.num_children = random.randint(1, 500)

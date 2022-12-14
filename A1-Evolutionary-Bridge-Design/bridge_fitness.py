@@ -1,5 +1,3 @@
-import random
-
 import frame
 from typing import List, Tuple
 
@@ -50,7 +48,6 @@ def constraint_satisfaction_simulation( input_points, material:str, solid:bool, 
     edges = [[(edge.start.x, edge.start.y), (edge.end.x, edge.end.y)] for edge in frame.elements]
     [edge.sort(key=lambda edge: edge[0]) for edge in edges]
 
-    # This feels overly verbose
     violations = 0
     for zone in exclusion_zones:
         x_bounds = zone[0]
@@ -58,18 +55,23 @@ def constraint_satisfaction_simulation( input_points, material:str, solid:bool, 
         for edge in edges:
             start_x, start_y = edge[0][0], edge[0][1]
             end_x, end_y = edge[1][0], edge[1][1]
-            if  ((start_x < x_bounds[0] and end_x < x_bounds[0]) or 
-                (start_x > x_bounds[1] and end_x > x_bounds[1]) or 
-                (start_y < y_bounds[0] and end_y < y_bounds[0]) or 
-                (start_y > y_bounds[1] and end_y > y_bounds[1])):
+            if ((start_x < x_bounds[0] and end_x < x_bounds[0]) or
+               (start_x > x_bounds[1] and end_x > x_bounds[1]) or
+               (start_y < y_bounds[0] and end_y < y_bounds[0]) or
+               (start_y > y_bounds[1] and end_y > y_bounds[1])):
                 continue
-            else:
-                slope = (end_y-start_y)/(end_x-start_x)
-                intercept = start_y - (start_x*slope)
 
-                if  (y_bounds[0] <= (max(start_x, x_bounds[0])*slope+intercept) <= y_bounds[1] or
-                    y_bounds[0] <= (min(end_x, x_bounds[1])*slope+intercept) <= y_bounds[1]):
-                    violations += 1
+            corners = [
+                (x_bounds[0], y_bounds[0]),
+                (x_bounds[0], y_bounds[1]),
+                (x_bounds[1], y_bounds[0]),
+                (x_bounds[1], y_bounds[1])
+            ]
+            test_value = sum(line_relation(start_x, start_y, end_x, end_y, *corner)
+                             for corner in corners)
+            if 4 > test_value > -4:
+                # Not all corners of the box were on the same side of the line, therefore collision
+                violations += 1
     raw_fitness = WORST_FITNESS if violations > 0 else fitness
     return raw_fitness, fitness, violations, frame
 
@@ -79,13 +81,10 @@ def constraint_satisfaction_simulation( input_points, material:str, solid:bool, 
 # basic_simulation, sum length of all connected bridge elements, and (optionally)
 # the highest y-value of a point connected to the bridge. Returns a list of
 # objective scores and a bridge object.
-def multi_objective_simulation(input_points, material:str, solid:bool, width:float, thickness=None, calculate_height=False, **kwargs):
+def multi_objective_simulation(input_points, material:str, solid:bool, width:float, thickness=None, **kwargs):
     fitness, frame = basic_simulation(input_points, material, solid, width, thickness, **kwargs)
-    material = -sum([edge.length for edge in frame.elements]) + (random.uniform(0.1, 0.9)/1000)
-    objectives = [fitness, material]
-    
-    if calculate_height:
-        objectives.append(height)
+    height = max(*[edge.start.y for edge in frame.elements], *[edge.end.y for edge in frame.elements])
+    objectives = [fitness, height]
 
     return objectives, frame
 
@@ -93,3 +92,12 @@ def multi_objective_simulation(input_points, material:str, solid:bool, width:flo
 # as input.
 def plot_bridge(*args, **kwargs):
     frame.plot_frame(*args, **kwargs)
+
+# Used for calculating collisions with constraints.
+# Sign determines which side of the line segment (x1, y1), (x2, y2) the given point (cx, cy) falls on.
+def line_relation(x1, y1, x2, y2, cx, cy):
+    relation = (y2-y1)*cx + (x1-x2)*cy + (x2*y1-x1*y2)
+    if relation == 0:
+        return 0
+    else:
+        return int(relation / abs(relation))
