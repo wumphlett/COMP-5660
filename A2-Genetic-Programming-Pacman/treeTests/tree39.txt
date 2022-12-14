@@ -1,0 +1,9 @@
+RAND
+|F
+|RAND
+||RAND
+|||F
+|||P
+||RAND
+|||W
+|||W

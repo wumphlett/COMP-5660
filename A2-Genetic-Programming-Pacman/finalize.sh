@@ -6,7 +6,7 @@ while [[ $input == "bad" ]]; do
 	read auName
 	echo "Is $auName correct? (y/n)"
 	read answer
-	if [[ "$answer" =~ [Yy][eE]?[sS]? ]]; then
+	if [[ "$answer" =~ [Yy][eE]?[sS]? ]]; then 
 		echo $auName >> readyToSubmit.txt
 		input="good enough"
 	fi

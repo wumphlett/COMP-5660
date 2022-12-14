@@ -1,0 +1,31 @@
+[fitness_kwargs]
+game_map = ./maps/map00.txt
+pill_spawn = linear
+pill_density = 0.05
+fruit_prob = 0.1
+fruit_score = 10
+parsimony_coefficient = 1E9 # Not a good parsimony coefficient
+num_pacs = 2
+
+[EA_configs]
+mu = 5
+num_children = 2
+mutation_rate = 0.95
+individual_class = TreeGenotype
+parent_selection = k_tournament_with_replacement
+survival_selection = k_tournament_without_replacement
+
+[initialization_kwargs]
+depth_limit = 10
+
+[parent_selection_kwargs]
+k = 1
+
+[recombination_kwargs]
+depth_limit = 10
+
+[mutation_kwargs]
+depth_limit = 10
+
+[survival_selection_kwargs]
+k = 1

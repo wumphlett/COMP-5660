@@ -75,7 +75,6 @@ def play_GPac(pac_controller, ghost_controller=None, game_map=None, **kwargs):
                     selected_action_idx = random.choice(range(len(actions)))
                 else:
                     selected_action_idx = max(enumerate(s_primes), key=lambda s: pac_controller.eval(s[1]))[0]
-
             game.register_action(actions[selected_action_idx], player)
         
         game.step()

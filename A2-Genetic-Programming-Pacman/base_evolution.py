@@ -1,9 +1,14 @@
-class BaseEvolutionPopulation():
-    def __init__(self, individual_class, mu, num_children, mutation_rate,
-                 parent_selection, survival_selection,
-                 initialization_kwargs=dict(), parent_selection_kwargs=dict(),
-                 recombination_kwargs = dict(), mutation_kwargs = dict(),
-                 survival_selection_kwargs=dict(), **kwargs):
+import random
+
+
+class BaseEvolutionPopulation:
+    def __init__(
+         self, individual_class, mu, num_children, mutation_rate,
+         parent_selection, survival_selection,
+         initialization_kwargs=dict(), parent_selection_kwargs=dict(),
+         recombination_kwargs = dict(), mutation_kwargs = dict(),
+         survival_selection_kwargs=dict(), **kwargs
+    ):
         self.mu = mu
         self.num_children = num_children
         self.mutation_rate = mutation_rate
@@ -17,19 +22,14 @@ class BaseEvolutionPopulation():
         self.population = individual_class.initialization(self.mu, **initialization_kwargs)
 
     def generate_children(self):
-        children = list()
-
-        # TODO: Select parents
-        # hint: self.parent_selection(self.population, **self.parent_selection_kwargs)
-        pass
-
-        # TODO: Recombine parents to generate children
-        pass
-
-        # TODO: Mutate children if appropriate
-        pass
-
-        # return children
+        children = []
+        parents = self.parent_selection(
+            self.population, n=2 * self.num_children, **self.parent_selection_kwargs
+        )
+        random.shuffle(parents)
+        for i in range(0, 2 * self.num_children, 2):
+            child = parents[i].recombine(parents[i + 1], **self.recombination_kwargs)
+            children.append(child.mutate(**self.mutation_kwargs) if random.random() < self.mutation_rate else child)
         return children
 
 

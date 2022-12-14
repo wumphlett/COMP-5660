@@ -1,0 +1,30 @@
+[fitness_kwargs]
+game_map = ./maps/map00.txt
+pill_spawn = linear
+pill_density = 0.05
+fruit_prob = 0.1
+fruit_score = 10
+parsimony_coefficient = .01
+
+[EA_configs]
+mu = 400
+num_children = 200
+mutation_rate = 0.02
+individual_class = TreeGenotype
+parent_selection = stochastic_universal_sampling
+survival_selection = truncation
+
+[initialization_kwargs]
+depth_limit = 10
+
+[parent_selection_kwargs]
+k = 1
+
+[recombination_kwargs]
+depth_limit = 10
+
+[mutation_kwargs]
+depth_limit = 10
+
+[survival_selection_kwargs]
+k = 1
