@@ -2,6 +2,10 @@
 Auburn COMP 5660 Assignments  
 Evolutionary Computing
 
+## Assignment Series
+- Series 1: Bridge Designs using Evolutionary Computing `A1-Evolutionary-Bridge-Design`
+- Series 2: Pacman using Genetic Programming `A2-Genetic-Programming-Pacman`
+
 ```
 
         Total Views per Day from 2022-09-16 to 2022-12-14
@@ -24,6 +28,6 @@ Evolutionary Computing
        7 ┤  │ │╭╮╭╮  ╭╮ ╭╯     ╰╮  ╭╮    ╭╮  ╭╮                 ╭╮                         ╭╮
        0 ┼──╯ ╰╯╰╯╰──╯╰─╯       ╰──╯╰────╯╰──╯╰─────────────────╯╰─────────────────────────╯╰──────
 
-        Chart last updated - Wed Dec 14 00:49:28 2022 UTC
+        Chart last updated - Wed Dec 14 01:09:31 2022 UTC
         
 ```
